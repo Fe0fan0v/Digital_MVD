@@ -7,19 +7,14 @@ serv_sock.bind(('', 53210))
 serv_sock.listen(10)
 
 while True:
-    # Бесконечно обрабатываем входящие подключения
     client_sock, client_addr = serv_sock.accept()
     print('Connected by', client_addr)
 
     while True:
-        # Пока клиент не отключился, читаем передаваемые
-        # им данные и отправляем их обратно
-        request = json.loads(client_sock.recv(1024))
-        print(request)
-        text = Text(request['id'], request['text'])
-        if not text:
-            # Клиент отключился
+        request = json.loads(client_sock.recv(2048))
+        text_to_work = Text(request['id'], request['text'])
+        if not text_to_work:
             break
-        # client_sock.sendall(str.encode(text.performed_text()))
+        client_sock.sendall((json.dumps({'text': text_to_work.change_person()}).encode('utf-8')))
 
     client_sock.close()
